@@ -20,3 +20,12 @@ export function appendInitialChild (parent, child) {
 export function finalizeInitialChildren (domElement, type, props) {
   setInitialProperties(domElement, type, props)
 }
+
+
+export function appendChild (parent, child) {
+  parent.appendChild(child)
+}
+
+export function insertBefore (parent, child, beforeChild) {
+  parent.insertBefore(child, beforeChild)
+}
