@@ -1,8 +1,14 @@
 import { createRoot } from 'react-dom/client'
 
-const element = (<h1>
-  hello <span style={{color: 'red'}}>world</span>
-</h1>)
+function FunctionComponent () {
+  return (<h1>
+    hello <span style={{color: 'red'}}>world</span>
+  </h1>)
+}
+
+const element = <FunctionComponent />
+// old const element = React.createElement(FunctionComponent)
+// new const element = jsx(FunctionComponent)
 
 const root = createRoot(document.getElementById('root'))
 

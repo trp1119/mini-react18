@@ -1,6 +1,6 @@
-import { appendChild } from "react-dom-bindings";
+import { appendChild, insertBefore } from "react-dom-bindings";
 import { MutationMask, Placement } from "./ReactFiberFlags";
-import { HostComponent, HostRoot, HostText } from "./ReactWokerTags";
+import { FunctionComponent, HostComponent, HostRoot, HostText } from "./ReactWokerTags";
 
 function recursivelyTraverseMutationEffects(root, parentFiber) {
   if (parentFiber.subtreeFlags & MutationMask) {
@@ -47,10 +47,10 @@ function insertOrAppendPlacementNode (node, before, parent) {
     // node 不是真实DOM节点，获取其大儿子
     const { child } = node
     if (child !== null) {
-      insertOrAppendPlacementNode(child, parent)
+      insertOrAppendPlacementNode(child, before, parent)
       let { sibling } = child
       while (sibling !== null) {
-        insertOrAppendPlacementNode(sibling, parent)
+        insertOrAppendPlacementNode(sibling, before, parent)
         sibling = sibling.sibling
       }
     }
@@ -91,7 +91,6 @@ function getHostSibling (fiber) {
  * @param {*} finishedWork 
  */
 function commitPlacement (finishedWork) {
-  console.log('finish', finishedWork)
   const parentFiber = getHostParentFiber(finishedWork)
   switch (parentFiber.tag) {
     case HostRoot: {
@@ -129,6 +128,7 @@ function commitReconcilationEffects(finishedWork) {
  */
 export function commitMutationEffectsOnFiber(finishedWork, root) {
   switch (finishedWork.tag) {
+    case FunctionComponent:
     case HostRoot:
     case HostComponent:
     case HostText:

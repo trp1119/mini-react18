@@ -2,8 +2,9 @@
 import { shouldSetTextContent } from "react-dom-bindings";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { processUpdateQueue } from "./ReactFiberClassUpdateQueue";
-import { HostComponent, HostRoot, HostText } from "./ReactWokerTags";
+import { FunctionComponent, HostComponent, HostRoot, HostText, IndeterminateComponent } from "./ReactWokerTags";
 import logger, { indent } from "shared/logger";
+import { renderWithHooks } from "./ReactFiberHooks";
 
 /**
  * 根据新的虚拟DOM 生成新的 fiber 链表
@@ -50,6 +51,21 @@ function updateHostComponent(current, workInProgress) {
 }
 
 /**
+ * 挂载函数组件
+ * @param {*} current 老组件
+ * @param {*} workInProgress 新组建
+ * @param {*} Component 函数类型，也就是函数组件的定义
+ */
+function mountIndeterminateComponent (current, workInProgress, Component) {
+  const props = workInProgress.pendingProps
+  const value = renderWithHooks(current, workInProgress, Component, props)
+
+  workInProgress.tag = FunctionComponent
+  reconcileChildren(current, workInProgress, value)
+  return workInProgress.child
+}
+
+/**
  * 根据新的虚拟 DOM 构建新的 fiber 子链表
  * @param {*} current 老 fiber
  * @param {*} workInProgress 新 fiber
@@ -58,6 +74,9 @@ export function beginWork (current, workInProgress) {
   logger(' '.repeat(indent.number) + 'beginWork', workInProgress)
   indent.number += 2
   switch (workInProgress.tag) {
+    // 暂时不确定是函数组件还是类组件
+    case IndeterminateComponent:
+      return mountIndeterminateComponent(current, workInProgress, workInProgress.type)
     case HostRoot:
       return updateHostRoot(current, workInProgress)
     case HostComponent:
